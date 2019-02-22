@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl">
+<head>
+<style>
+@font-face {
+    font-family: Skyfont;
+    src: url(Skyfont.otf) format("opentype");
+}
+@font-face {
+    font-family: "KR First Years Dings";
+    src: url("KR First Years Dings.ttf") format("truetype");
+    unicode-range: U+3?;
+}
+body {
+    margin: 0 20vw;
+    background: slategray;
+    text-align: center;
+    color: goldenrod;
+    font-size: x-large;
+}
+fieldset, section {
+    position: relative;
+    top: 1ex;
+}
+fieldset {
+    margin: 0 -5vw;
+    width: 70vw;
+    text-align: left;
+}
+legend {
+    font-size: medium;
+    font-weight: bolder;
+}
+#time {
+    visibility: hidden;
+    position: relative;
+}
+#time::after {
+    content: "";
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+section {
+    display: inline;
+    background: #D3D3D370;
+    box-shadow: 0 0 0 2px #D3D3D370;
+    line-height: 1.5;
+    font-weight: bold;
+    text-shadow: 1pt 1.4pt firebrick;
+}
+section::before {
+    content: "";
+    display: block;
+    width: 51vw;
+    height: 3.5ex;
+}
+#age {
+    padding: 0 7px;
+    font-family: "KR First Years Dings", fantasy;
+}
+time {
+    display: inline-block;
+    position: relative;
+    bottom: 3px;
+    margin: 6pt 1pt;
+    background: black;
+    color: white;
+    box-shadow: 0 0 9px 1px white;
+    vertical-align: middle;
+    white-space: pre;
+    font: normal 3rem Skyfont, serif;
+    text-shadow: none;
+}
+object, img {
+    position: fixed;
+    left: 50%;
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+    transform: translate(-50%);
+    z-index: -1;
+}
+button {
+    display: block;
+    visibility: hidden;
+}
+button::after {
+    position: absolute;
+    top: 50vh;
+    padding: 1.2ex;
+    transform: translateY(-50%);
+    visibility: visible;
+    background: steelblue;
+    border: solid;
+    border-radius: 1em;
+    font-size: xx-large;
+}
+#prev::after {
+    left: 3ex;
+    content: "◀";
+}
+#next::after {
+    right: 3ex;
+    content: "▶";
+}
+</style>
+</head>
+<body>
+<object id="Pesymistyczny" data="Pesymistyczny.png">
+<object data="Pesymistyczny.jpg">
+<img src="Pesymistyczny.jpeg"/>
+</object>
+</object>
+<object id="Optymistyczny" data="Optymistyczny.png" hidden="">
+<object data="Optymistyczny.jpg">
+<img src="Optymistyczny.jpeg"/>
+</object>
+</object>
+<fieldset>
+<legend>Data urodzenia</legend>
+<input id="date" type="date"/>
+<input id="time" type="time"/>
+</fieldset>
+<fieldset>
+<legend>Płeć</legend>
+<label><input id="man" type="radio" name="sex" checked=""/>mężczyzna</label>
+<label><input type="radio" name="sex"/>kobieta</label>
+</fieldset>
+<section><span>Wydałeś dotychczas </span><time id="age">, ile obliczymy, tyle minut</time><span> życia. Jeżeli jesteś zadowolony ze swoich dotychczasowych dokonań, to gratulacje!</span></section>
+<section>Pożyjesz jeszcze prawdopodobnie <time id="left">tyle minut, ile obliczymy</time>. Wykorzystaj ten czas dobrze! Powodzenia!</section>
+<button id="prev" title="Pesymistyczny ☹" onclick="toggle()" disabled="">Pesymistyczny</button>
+<button id="next" title="Optymistyczny ☺" onclick="toggle()">Optymistyczny</button>
+</body>
+<script>
+"use strict"
+const
+    $ = document.getElementById.bind(document),
+    othersex = [
+        "Wydałaś dotychczas ",
+        " życia. Jeżeli jesteś zadowolona ze swoich dotychczasowych dokonań, to gratulacje!"
+    ]
+let time, ID, over
+function render(id, n) {
+    $(id).textContent = n.toFixed(2) + " minut"
+}
+function update() {
+    const age = (new Date - $("date").valueAsNumber - (isNaN(time) ? 0 : time)) / 60000
+    render("age", age)
+    render("left", ($("man").checked ? 36711254.16 : 39025430.64) - age)
+}
+document.body.onchange = e => {
+    time = $("time").valueAsNumber
+    if ($("date").value) {
+        update()
+        clearInterval(ID)
+        ID = setInterval(update, 600)
+    }
+    if (e.target.name == "sex")
+        document.querySelectorAll("span").forEach((run, i) =>
+            [run.textContent, othersex[i]] = [othersex[i], run.textContent])
+}
+Object.assign($("time"), {
+    onpointerenter() {
+        this.style.visibility = "visible"
+        document.styleSheets[0].rules[7].style.visibility = "hidden"
+        over = true
+    },
+    onpointerleave() {
+        if (document.activeElement != this) this.hide()
+        over = false
+    },
+    onblur () {
+        if (!over) this.hide()
+    },
+    hide() {
+        if (isNaN(time)) {
+            this.style.visibility = "hidden"
+            document.styleSheets[0].rules[7].style.visibility = "visible"
+        }
+    }
+})
+function toggle() {
+    for (const bg of document.querySelectorAll("body > object"))
+        bg.hidden ^= true
+    for (const btn of document.querySelectorAll("button"))
+        btn.disabled ^= true
+}
+</script>
+</html>
