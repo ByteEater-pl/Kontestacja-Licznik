@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pl" lang="pl">
 <head>
+<title>Licznik życia</title>
+<link rel="icon" href="//www.kontestacja.com/images/favicon.ico"/>
 <style>
 @font-face {
     font-family: Skyfont;
@@ -73,6 +75,7 @@ time {
     vertical-align: middle;
     white-space: pre;
     font: normal 3rem Skyfont, serif;
+    letter-spacing: 0.1em;
     text-shadow: none;
 }
 object, img {
@@ -145,23 +148,25 @@ const
     ]
 let time, ID, over
 function render(id, n) {
-    $(id).textContent = n.toFixed(2) + " minut"
+    $(id).textContent = (isNaN(n) ? "ileś" : n.toFixed(2)) + " minut"
 }
 function update() {
     const age = (new Date - $("date").valueAsNumber - (isNaN(time) ? 0 : time)) / 60000
     render("age", age)
     render("left", ($("man").checked ? 36711254.16 : 39025430.64) - age)
 }
-document.body.onchange = e => {
-    time = $("time").valueAsNumber
-    if ($("date").value) {
-        update()
-        clearInterval(ID)
-        ID = setInterval(update, 600)
-    }
-    if (e.target.name == "sex")
+document.body.onchange = () => {
+    if (event.target.name == "sex")
         document.querySelectorAll("span").forEach((run, i) =>
             [run.textContent, othersex[i]] = [othersex[i], run.textContent])
+    else {
+        time = $("time").valueAsNumber
+        if (event.target == $("date") || event.target == $("time") && $("date").value) {
+            update()
+            clearInterval(ID)
+            ID = setInterval(update, 600)
+        }
+    }
 }
 Object.assign($("time"), {
     onpointerenter() {
